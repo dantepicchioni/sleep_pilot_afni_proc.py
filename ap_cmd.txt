@@ -1,0 +1,54 @@
+
+# An example afni_proc.py processing command for one subject.
+#
+# Some notes:
+# + @SSwarper was run prior to this, to both skullstrip (SS) the anatomical
+#   dataset and to estimate nonlinear alignment (warping) to template space;
+#   the results of this are provided via '-tlrc_NL_warped_dsets'
+# + Physiological time series regressors were estimated prior to this, using
+#   the approach described in the main text; the results of this are included
+#   via '-ricor_regs'.
+
+afni_proc.py                                                                 \
+    -subj_id                   20170223_0434                                 \
+    -dsets                     Epi.nii                                       \
+    -copy_anat                 anat_warp/anatSS.20170223_0434.nii            \
+    -anat_has_skull            no                                            \
+    -blocks                    despike ricor tshift align tlrc volreg mask   \
+                               regress                                       \
+    -tshift_align_to           -tzero 1.5                                    \
+    -tshift_opts_ts            -tpattern alt+z2                              \
+    -ricor_regs                RicRegs.1D                                    \
+    -ricor_regress_method      per-run                                       \
+    -align_unifize_epi         yes                                           \
+    -align_opts_aea            -cost lpc+ZZ                                  \
+                               -ginormous_move                               \
+                               -deoblique on                                 \
+                               -check_flip                                   \
+    -tlrc_base                 TT_N27_SSW.nii.gz                             \
+    -tlrc_NL_warp                                                            \
+    -tlrc_NL_warped_dsets      anat_warp/anatQQ.20170223_0434.nii            \
+                               anat_warp/anatQQ.20170223_0434.aff12.1D       \
+                               anat_warp/anatQQ.20170223_0434_WARP.nii       \
+    -volreg_align_to           MIN_OUTLIER                                   \
+    -volreg_align_e2a                                                        \
+    -volreg_warp_dxyz          2.0                                           \
+    -volreg_no_extent_mask                                                   \
+    -volreg_tlrc_warp                                                        \
+    -volreg_zpad               2                                             \
+    -mask_apply                epi                                           \
+    -mask_dilate               4                                             \
+    -mask_segment_anat         yes                                           \
+    -mask_segment_erode        yes                                           \
+    -regress_censor_first_trs  3                                             \
+    -regress_motion_per_run                                                  \
+    -regress_censor_motion     0.3                                           \
+    -regress_censor_outliers   0.05                                          \
+    -regress_apply_mot_types   demean deriv                                  \
+    -regress_opts_3dD          -jobs 32                                      \
+                               -GOFORIT 0                                    \
+    -regress_censor_extern     RicRegs_censor.1D                             \
+    -regress_no_fitts                                                        \
+    -html_review_style         pythonic                                      \
+    -keep_rm_files                                                           \
+    -execute
